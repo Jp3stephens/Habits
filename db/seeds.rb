@@ -12,5 +12,6 @@ end
 User.all.each do |u|
     10.times do |i|
         u.todo_items.create(title: "To Do Item #{i+1} for #{u.email}", complete: i%3 == 0 ? true : false)
+    
     end
 end 
