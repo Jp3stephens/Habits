@@ -17,7 +17,7 @@ class TodoForm extends React.Component {
         axios
             .post('/api/v1/todo_items', {
                 todo_item: {
-                    title: this.titleRef.current_value, 
+                    title: this.titleRef.current.value, 
                     complete: false, 
                 },
 
@@ -25,9 +25,11 @@ class TodoForm extends React.Component {
             .then(response=> {
                 const todoItem = response.data
                 this.props.createTodoItem(todoItem)
+                this.props.clearErrors();  
             })
             .catch(error => {
                 console.log(error)
+                this.props.handlesErrors(error); 
             })
         e.target.reset()
     }
@@ -62,4 +64,6 @@ export default TodoForm
 
 TodoForm.propTypes = {
     createTodoItem: PropTypes.func.isRequired,
+    handlesErrors: PropTypes.func.isRequired, 
+    clearErrors: PropTypes.func.isRequired
 }

@@ -38,12 +38,13 @@ class TodoItem extends React.Component {
                 }
             })
             .then (response => {
+                this.props.clearErrors();  
             })
             .catch(error => {
-                console.log(error);
+                this.props.handlesErrors(error); 
             });
         }, 1000); 
-    }
+    
 
     handleDestroy(){
         setAxiosHeaders(); 
@@ -66,7 +67,6 @@ class TodoItem extends React.Component {
             <tr
                 className={`${this.state.complete && this.props.hideCompletedTodoItems ? `d-none`: ""} ${this.state.complete ? "table-light" : ""}`}
             >
-            <tr className={`${this.state.complete ? 'table-light' : ''}`}>
                 <td>
                     <svg
                         className={`bi bi-check-circle ${
@@ -123,15 +123,15 @@ class TodoItem extends React.Component {
                         className="btn btn-outline-danger">Delete</button>
                       </td>
                     </tr>
-                </tr>
+                
         )
                     }
 }
             export default TodoItem     
               
               TodoItem.propTypes = {
-                todoItem: PropTypes.object.isRequired
-                getTodoItems: PropTypes.func.isRequired 
+                todoItem: PropTypes.object.isRequired,
+                getTodoItems: PropTypes.func.isRequired,
                 hideCompletedTodoItems: PropTypes.bool.isRequired 
               };
             
