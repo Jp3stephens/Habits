@@ -7,6 +7,7 @@ import TodoItem from './TodoItem';
 import TodoForm from "./TodoForm"; 
 
 
+
 class TodoApp extends React.Component { 
     constructor(props){
         super(props); 
@@ -20,7 +21,6 @@ class TodoApp extends React.Component {
         this.getTodoItems(); 
     }
     getTodoItems() { 
-        console.log('going crazy')
         axios 
             .get("/api/v1/todo_items")
             .then(response => {
@@ -45,7 +45,10 @@ class TodoApp extends React.Component {
             <TodoForm createTodoItem = {createTodoItem} />
             <TodoItems>
                 {this.state.todoItems.map(todoItem => (
-                    <TodoItem key={todoItem.id} todoItem={todoItem} />
+                    <TodoItem key={todoItem.id} 
+                    todoItem={todoItem}
+                    getTodoItems = {this.getTodoItems}
+                />
                 ))}
             </TodoItems>
             </div>
