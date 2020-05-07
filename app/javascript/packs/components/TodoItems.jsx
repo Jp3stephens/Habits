@@ -9,6 +9,7 @@ class TodoItems extends React.Component {
 
     handleClick() { 
         this.props.toggleCompletedTodoItems()
+        console.log("handle click has been called")
     }
 
     render(){

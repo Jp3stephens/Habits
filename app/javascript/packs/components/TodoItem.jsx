@@ -24,7 +24,6 @@ class TodoItem extends React.Component {
         this.setState({
             complete: this.completedRef.current.checked
         });
-        this.updateTodoItem(); 
     }
 
 
@@ -39,6 +38,7 @@ class TodoItem extends React.Component {
             })
             .then (response => {
                 this.props.clearErrors();  
+                this.props.updateDailyCount(); 
             })
             .catch(error => {
                 this.props.handlesErrors(error); 

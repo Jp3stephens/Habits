@@ -17,7 +17,9 @@ class TodoApp extends React.Component {
             todoItems: [], 
             hideCompletedToDoItems: false,
             isLoading: true,
-            errorMessage: null
+            errorMessage: null,
+            goalCount: 0,
+            dailyComplete: 0,
         };
         this.getTodoItems = this.getTodoItems.bind(this); 
         this.createTodoItem = this.createTodoItem.bind(this); 
@@ -46,6 +48,7 @@ class TodoApp extends React.Component {
                 this.setState({isLoading: true}); 
                 const todoItems = response.data; 
                 this.setState({ todoItems, }); 
+                this.setState({goalCount: todoItems.length});
                 this.setState({isLoading: false}); 
             })
             .catch(error => {
@@ -64,6 +67,7 @@ class TodoApp extends React.Component {
     createTodoItem(todoItem) {
         const todoItems = [todoItem, ...this.state.todoItems]; 
         this.setState({todoItems}); 
+        this.setState({goalCount}); 
     }
 
     toggleCompletedTodoItems(){ 
@@ -102,6 +106,7 @@ class TodoApp extends React.Component {
                 />
                 ))}
             </TodoItems>
+            {this.state.goalCount}
             </div>
                 )}
                 {this.state.isLoading && <Spinner/>}
