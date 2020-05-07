@@ -1,8 +1,10 @@
 class Api::V1::TodoItemsController < ApplicationController
     before_action :authenticate_user! 
-    before_action :set_todo_item, only: [:show, :edit, :update, :destroy]
+    before_action :set_todo_item, only: [:show, :edit, :update, :destroy, :getComplete]
+    before_action :getComplete, only: [:index]
     def index 
         @todo_items = current_user.todo_items.all
+       
     end 
     def show
         if authorized? 
@@ -51,6 +53,13 @@ class Api::V1::TodoItemsController < ApplicationController
             handle_unauthorized
         end 
     end 
+    def getComplete 
+        user_id = @todo_items
+        query = "select user_id, count(*) as total, sum(case when complete=true then 1 else 0 end) as completeCount from todo_items group by user_id;"
+        records_array = ActiveRecord::Base.connection.execute(query)
+        @yadig = records_array
+    end 
+
     private 
         def todo_item_params
             params.require(:todo_item).permit(:title, :complete)

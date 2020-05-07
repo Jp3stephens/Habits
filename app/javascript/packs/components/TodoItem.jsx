@@ -24,7 +24,9 @@ class TodoItem extends React.Component {
         this.setState({
             complete: this.completedRef.current.checked
         })
+        this.props.updateDailyComplete(this.state.complete); 
         this.updateTodoItem(); 
+        console.log("complete value is " + this.state.complete)
         console.log("handle change has fired")
 
 
@@ -33,6 +35,7 @@ class TodoItem extends React.Component {
 
     updateTodoItem = _.debounce(()=>{
         console.log("updateTodoItem has fired")
+        this.props.checkIfDone()
         setAxiosHeaders(); 
         axios 
             .put(this.path, {
@@ -41,7 +44,7 @@ class TodoItem extends React.Component {
                     complete: this.completedRef.current.checked
                 }
             })
-            .then (response => {
+            .then (response => { 
                 this.props.clearErrors(); 
                 console.log(response)
                 console.log("that was the response")

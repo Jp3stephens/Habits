@@ -7,6 +7,7 @@ import TodoItem from './TodoItem';
 import TodoForm from "./TodoForm"; 
 import Spinner from "./Spinner"; 
 import ErrorMessage from "./ErrorMessage"; 
+import CalendarHeatmap from 'reactjs-calendar-heatmap'
 
 
 
@@ -15,12 +16,14 @@ class TodoApp extends React.Component {
         super(props); 
         this.state = {
             todoItems: [], 
+            heatMap: [], 
             hideCompletedToDoItems: false,
             isLoading: true,
             errorMessage: null,
             goalCount: 0,
             dailyComplete: 0,
-            completedGoal: false
+            completedGoal: false,
+            loggedToHeatMap: false
         };
         this.getTodoItems = this.getTodoItems.bind(this); 
         this.createTodoItem = this.createTodoItem.bind(this); 
@@ -28,14 +31,47 @@ class TodoApp extends React.Component {
         this.handlesErrors = this.handlesErrors.bind(this)
         this.clearErrors = this.clearErrors.bind(this)
         this.updateDailyComplete = this.updateDailyComplete.bind(this)
+        this.checkIfDone = this.checkIfDone.bind(this)
+        this.logToHeatMap = this.logToHeatMap.bind(this)
+        this.createHeatMapItem = this.createHeatMapItem.bind(this)
+        this.getEndDate = this.getEndDate.bind(this)
         
     }
     componentDidMount(){
         this.getTodoItems(); 
+        
     }
 
     handlesErrors(errorMessage){ 
         this.setState({errorMessage});
+    }
+
+    checkIfDone(){
+        console.log("In checkifDone")
+        let dailyCompleteNum = this.state.dailyComplete
+        let goalCountNum = this.state.goalCount 
+        let val; 
+    if (dailyCompleteNum === goalCountNum)
+        {
+            
+            console.log("value of this.state.dailyComplete is"  + dailyCompleteNum)
+            console.log("Value of goal count is " + goalCountNum)
+            console.log("Setting goal complete to true")
+            val = true
+        }
+        else 
+        {
+
+            console.log("value of this.state.dailyComplete is " + dailyCompleteNum)
+            console.log("Value of goal count is " + goalCountNum)
+            console.log("Setting value of goalcomplete to false")
+            val = false
+        }
+        this.setState({goalComplete: val})
+        if (val){
+            this.logToHeatMap();
+        }
+
     }
 
     clearErrors() { 
@@ -44,47 +80,77 @@ class TodoApp extends React.Component {
         });
     }
 
-    updateDailyComplete(item){
-        let count = 0
+    
+
+    logToHeatMap(){ 
+                // get date
+            if (this.state.loggedToHeatMap){
+                console.log("YOU ALREADY REACHED UR GOAL")
+                return; 
+            }
+            let dates = new  Date().toISOString().slice(0, 10); 
+            let counts = this.state.dailyComplete; 
+            let heatMapItem = new Object(); 
+            heatMapItem.date=dates
+            heatMapItem.count = counts
+            console.log("This is the value of heatMapItem in logtoheatmap: ")
+            console.log(heatMapItem)
+            this.createHeatMapItem(heatMapItem);
+                
+            
+        // get count
+        // get date  
+        // format 
+        
+    }
+
+    updateDailyComplete(item, initial=0){
+        let count = initial
+        let cur = this.state.dailyComplete
         if (item)
         {
-            count = this.state.dailyComplete - 1
+            count = cur - 1
         }
         else
         {
-            count = this.state.dailyComplete + 1
+            count = cur + 1
         }
         this.setState({dailyComplete: count})
 
-        if (this.state.dailyComplete+1 === this.state.goalCount)
+        this.checkIfDone();
+    }
+
+    initializeDailyGoal(items){ 
+        let count = 0
+        let i = 0
+        console.log("there are this many items in items: " + items.length)
+
+        for (i; i< items.length; i++)
         {
-            console.log("You are a stud! Keep it up")
-            this.setState({goalComplete: true})
-        }
-        else 
-        {
-            this.setState({goalComplete:false})
-        }
+            console.log("Value of item.complete is: " + items[i].complete)
+            if (items[i].complete)
+            {
+                
+                count = count + 1
+                console.log("Updating count by 1, count is current: " +  count)
+            }
+        } 
+        this.setState({dailyComplete: count})
+        this.checkIfDone(); 
+
     }
 
     getTodoItems() { 
         axios 
             .get("/api/v1/todo_items")
             .then(response => {
+                console.log('get to do items has been called')
                 this.clearErrors(); 
                 this.setState({isLoading: true}); 
                 const todoItems = response.data; 
                 this.setState({ todoItems, }); 
                 this.setState({goalCount: todoItems.length});
-                let count = 0; 
-                for (let i = 0; i < todoItems.length; i++)
-                    {
-                        if (todoItems[i].complete)
-                        {
-                            count += 1
-                        }
-                    }
-                this.setState({dailyComplete: count}); 
+                this.initializeDailyGoal(this.state.todoItems); 
                 this.setState({isLoading: false}); 
             })
             .catch(error => {
@@ -100,21 +166,40 @@ class TodoApp extends React.Component {
 
     }
 
+    createHeatMapItem(data){
+        const heatMap = [data, ...this.state.heatMap]; 
+        this.setState({heatMap,})
+        this.setState({loggedToHeatMap: true})
+        console.log("Added a heatmap item to state")
+        console.log("value of heatmap data is: ")
+        console.log(this.state.heatMap)
+        console.log("value of loggedToheatmap" + this.state.loggedToHeatMap); 
+        
+       
+
+    }
+
+    getEndDate(){
+        let endDate =  new  Date().toISOString().slice(0, 10);
+        return endDate
+        
+    }
+
     createTodoItem(todoItem) {
         const todoItems = [todoItem, ...this.state.todoItems]; 
         this.setState({todoItems, goalCount: todoItems.length}); 
-        
+        console.log("In create todo item")
+        this.checkIfDone(); 
     }
 
     toggleCompletedTodoItems(){ 
         this.setState({
             hideCompletedTodoItems: !this.state.hideCompletedTodoItems
         });
-        console.log("toggleCompletedTodoItems has been fired")
+        
     }
     render() {
         
-        console.log(this.state.todoItems)
         return (
 
             <div>
@@ -129,6 +214,7 @@ class TodoApp extends React.Component {
                          : <h1>Day is not over yet!</h1>
                 }
                     </div>
+
             <TodoForm 
             createTodoItem = {this.createTodoItem} 
             handlesErrors = {this.handlesErrors}
@@ -146,6 +232,7 @@ class TodoApp extends React.Component {
                     handlesErrors = {this.handlesErrors}
                     clearErrors = {this.clearErrors}
                     updateDailyComplete = {this.updateDailyComplete}
+                    checkIfDone = {this.checkIfDone}
                     
                     
                 />
