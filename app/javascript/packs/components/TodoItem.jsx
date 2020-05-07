@@ -23,11 +23,16 @@ class TodoItem extends React.Component {
     handleChange(){ 
         this.setState({
             complete: this.completedRef.current.checked
-        });
+        })
+        this.updateTodoItem(); 
+        console.log("handle change has fired")
+
+
     }
 
 
     updateTodoItem = _.debounce(()=>{
+        console.log("updateTodoItem has fired")
         setAxiosHeaders(); 
         axios 
             .put(this.path, {
@@ -37,8 +42,9 @@ class TodoItem extends React.Component {
                 }
             })
             .then (response => {
-                this.props.clearErrors();  
-                this.props.updateDailyCount(); 
+                this.props.clearErrors(); 
+                console.log(response)
+                console.log("that was the response")
             })
             .catch(error => {
                 this.props.handlesErrors(error); 
@@ -54,6 +60,7 @@ class TodoItem extends React.Component {
                 .delete(this.path)
                 .then(response => {
                     this.props.getTodoItems(); 
+
                 })
                 .catch(error => {
                     console.log(error)
