@@ -10,6 +10,7 @@ class TodoItem extends React.Component {
         super(props)
         this.state = {
             complete: this.props.todoItem.complete,
+            color: this.props.todoItem.color, 
         }
     
     this.handleDestroy = this.handleDestroy.bind(this);
@@ -18,11 +19,13 @@ class TodoItem extends React.Component {
     this.updateTodoItem = this.updateTodoItem.bind(this); 
     this.inputRef = React.createRef(); 
     this.completedRef = React.createRef(); 
+    this.doneRef = React.createRef(); 
     }
 
     handleChange(){ 
         this.setState({
-            complete: this.completedRef.current.checked
+            complete: this.completedRef.current.checked,
+            color: this.doneRef
         })
         this.props.updateDailyComplete(this.state.complete); 
         this.updateTodoItem(); 
@@ -41,7 +44,8 @@ class TodoItem extends React.Component {
             .put(this.path, {
                 todo_item: {
                     title: this.inputRef.current.value, 
-                    complete: this.completedRef.current.checked
+                    complete: this.completedRef.current.checked,
+                    color: this.doneRef
                 }
             })
             .then (response => { 
@@ -110,6 +114,26 @@ class TodoItem extends React.Component {
                           className="form-control"
                           id={`todoItem__title-${todoItem.id}`}
                         />
+                      </td>
+                      <td>  
+                       <div class = "dropdown">
+                          <button 
+                            disable = {this.state.complete}
+                            class="dropbtn"
+                            ref = {this.doneRef}
+                            id = {`todoItem__color-${todoItem.id}`}
+                            >Choose a color
+
+                            </button>
+
+                          <div onClick = {this.handleChange} class="dropdown-content">
+                            <a href="#">Green</a>
+                            <a href="#">Purple</a>
+                            <a href="#">Blue</a>
+                            <a href="#">Yellow</a>
+                          </div>
+
+                        </div>
                       </td>
                       <td className="text-right">
                         <div className="form-check form-check-inline">
