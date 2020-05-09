@@ -5,5 +5,4 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   has_many :todo_items, dependent: :destroy
-  has_one :headmaps
 end

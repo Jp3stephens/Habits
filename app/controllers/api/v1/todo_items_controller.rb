@@ -1,7 +1,6 @@
 class Api::V1::TodoItemsController < ApplicationController
     before_action :authenticate_user! 
-    before_action :set_todo_item, only: [:show, :edit, :update, :destroy, :getComplete]
-    before_action :getComplete, only: [:index]
+    before_action :set_todo_item, only: [:show, :edit, :update, :destroy]
     def index 
         @todo_items = current_user.todo_items.all
        
@@ -18,6 +17,7 @@ class Api::V1::TodoItemsController < ApplicationController
 
     def create 
         @todo_item = current_user.todo_items.build(todo_item_params)
+        @paramStuff = todo_item_params
         if authorized? 
             respond_to do |format|
                 if @todo_item.save

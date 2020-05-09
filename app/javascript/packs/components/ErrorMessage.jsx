@@ -5,6 +5,9 @@ import _ from "lodash";
 const ErrorMessage = props => {
     const data = _.get(props.ErrorMessage, "response.data", null); 
     const message = _.get(props.errorMessage,  "message", null); 
+    console.log("THIS IS THE ERORR MESSAGE")
+    console.log(message);
+    console.log(data)
     if (data) { 
         const keys = Object.keys(data); 
         return keys.map(key=> {

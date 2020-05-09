@@ -7,7 +7,7 @@ import TodoItem from './TodoItem';
 import TodoForm from "./TodoForm"; 
 import Spinner from "./Spinner"; 
 import ErrorMessage from "./ErrorMessage"; 
-import CalendarHeatmap from 'reactjs-calendar-heatmap'
+import CalendarApp from './HeatMap'
 
 
 
@@ -148,6 +148,7 @@ class TodoApp extends React.Component {
                 this.clearErrors(); 
                 this.setState({isLoading: true}); 
                 const todoItems = response.data; 
+                console.log(response.data)
                 this.setState({ todoItems, }); 
                 this.setState({goalCount: todoItems.length});
                 this.initializeDailyGoal(this.state.todoItems); 
@@ -206,6 +207,8 @@ class TodoApp extends React.Component {
                 {this.state.errorMessage && (
                     <ErrorMessage errorMessage={this.state.errorMessage} />
                 )}
+
+                <CalendarApp/>
                 {!this.state.isLoading && (
                     <div>
                     <div>

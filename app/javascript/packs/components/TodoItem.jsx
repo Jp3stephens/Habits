@@ -9,8 +9,7 @@ class TodoItem extends React.Component {
     constructor(props){
         super(props)
         this.state = {
-            complete: this.props.todoItem.complete,
-            color: this.props.todoItem.color, 
+            complete: this.props.todoItem.complete
         }
     
     this.handleDestroy = this.handleDestroy.bind(this);
@@ -25,7 +24,6 @@ class TodoItem extends React.Component {
     handleChange(){ 
         this.setState({
             complete: this.completedRef.current.checked,
-            color: this.doneRef
         })
         this.props.updateDailyComplete(this.state.complete); 
         this.updateTodoItem(); 
@@ -77,6 +75,8 @@ class TodoItem extends React.Component {
 
     render() {
         const {todoItem} = this.props
+        console.log("THIS IS THE VALUE OF COLOR")
+        console.log(todoItem.color)
         return (
             <tr
                 className={`${this.state.complete && this.props.hideCompletedTodoItems ? `d-none`: ""} ${this.state.complete ? "table-light" : ""}`}
@@ -115,25 +115,13 @@ class TodoItem extends React.Component {
                           id={`todoItem__title-${todoItem.id}`}
                         />
                       </td>
-                      <td>  
-                       <div class = "dropdown">
-                          <button 
-                            disable = {this.state.complete}
-                            class="dropbtn"
-                            ref = {this.doneRef}
-                            id = {`todoItem__color-${todoItem.id}`}
-                            >Choose a color
-
-                            </button>
-
-                          <div onClick = {this.handleChange} class="dropdown-content">
-                            <a href="#">Green</a>
-                            <a href="#">Purple</a>
-                            <a href="#">Blue</a>
-                            <a href="#">Yellow</a>
-                          </div>
-
-                        </div>
+                      <td>
+                        <p
+                          defaulValue = {todoItem.color}
+                          className = "form-control"
+                          >
+                            {todoItem.color}
+                          </p>
                       </td>
                       <td className="text-right">
                         <div className="form-check form-check-inline">

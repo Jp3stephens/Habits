@@ -17,7 +17,10 @@
     "popper.js": "^1.16.1",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
+    "react-calendar-heatmap": "^1.8.1",
     "react-dom": "^16.13.1",
+    "react-scripts": "^3.4.1",
+    "react-tooltip": "^4.2.6",
     "reactjs-calendar-heatmap": "0.0.10",
     "turbolinks": "^5.2.0"
   },

@@ -9,26 +9,31 @@ class TodoForm extends React.Component {
         super(props)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.titleRef = React.createRef()
+        this.colorRef = React.createRef()
     }
 
     handleSubmit(e) {
         e.preventDefault()
         setAxiosHeaders(); 
+        console.log("Value of post request: ")
+        console.log(this.colorRef.current.value)
         axios
             .post('/api/v1/todo_items', {
                 todo_item: {
                     title: this.titleRef.current.value, 
                     complete: false, 
+                    color: this.colorRef.current.value
                 },
 
             })
             .then(response=> {
                 const todoItem = response.data
                 this.props.createTodoItem(todoItem)
+                console.log("And this is the value the post request returns: ")
+                console.log(todoItem)
                 this.props.clearErrors();  
             })
             .catch(error => {
-                console.log(error)
                 this.props.handlesErrors(error); 
             })
         e.target.reset()
@@ -38,7 +43,7 @@ class TodoForm extends React.Component {
         return(
             <form onSubmit={this.handleSubmit} className="my-3">
                 <div className="form-row">
-                    <div className="form-group col-md-8">
+                    <div className="form-group col-md-6">
                         <input 
                             type="text"
                             name="title"
@@ -48,6 +53,15 @@ class TodoForm extends React.Component {
                             id="title"
                             placeholder="Write your todo item here..."
                         />
+                    </div> 
+                    <div className="form-group col-md-2">
+                        <select id="color" name="color" ref = {this.colorRef}className = "form-control" require>
+                                <option value= "0">Volvo</option>
+                                <option value="1">Saab</option>
+                                <option value="2">Fiat</option>
+                                <option value="3">Audi</option>
+                        </select>
+               
                     </div>
                     <div className="form-group col-md-4">
                         <button className="btn btn-outline-success btn-block">
