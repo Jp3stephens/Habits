@@ -35,10 +35,12 @@ class TodoApp extends React.Component {
         this.logToHeatMap = this.logToHeatMap.bind(this)
         this.createHeatMapItem = this.createHeatMapItem.bind(this)
         this.getEndDate = this.getEndDate.bind(this)
+        this.getHeatMap = this.getHeatMap.bind(this); 
         
     }
     componentDidMount(){
         this.getTodoItems(); 
+        this.getHeatMap(); 
         
     }
 
@@ -94,6 +96,7 @@ class TodoApp extends React.Component {
             heatMapItem.date=dates
             heatMapItem.count = counts
             console.log("This is the value of heatMapItem in logtoheatmap: ")
+
             console.log(heatMapItem)
             this.createHeatMapItem(heatMapItem);
                 
@@ -167,7 +170,34 @@ class TodoApp extends React.Component {
 
     }
 
+    getHeatMap(){ 
+        axios
+            .get("api/v1/calendars")
+            .then(response => {
+                console.log("get heat map has been called")
+                this.clearErrors(); 
+                this.setState({isLoading: true})
+                const heatMap  = response.data; 
+                console.log(response.data)
+                this.setState({heatMap,})
+            })
+            .catch (error => {
+                this.setState({isLoading: true})
+                this.setState({
+                    errorMessage: {
+                        message: "There was an error message while loading getHeatMap..."
+                    }
+                })
+                console.log(error)
+            }); 
+    }
+
     createHeatMapItem(data){
+        console.log("Data is : " )
+        console.log(data)
+        // make a post request to calendar endpoint
+        // make a get request to calendar enpoing
+        
         const heatMap = [data, ...this.state.heatMap]; 
         this.setState({heatMap,})
         this.setState({loggedToHeatMap: true})

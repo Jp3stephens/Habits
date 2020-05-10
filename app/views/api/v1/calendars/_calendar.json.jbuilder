@@ -1,0 +1,1 @@
+json.extract! calendar, :id, :count, :user_id, :date_today, :created_at, :updated_at
