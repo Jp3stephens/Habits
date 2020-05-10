@@ -180,6 +180,9 @@ class TodoApp extends React.Component {
                 const heatMap  = response.data; 
                 console.log(response.data)
                 this.setState({heatMap,})
+                console.log("THE VALUE OF STATE HEATMAP IS: ")
+                console.log(this.state.heatMap)
+                this.setState({isLoading: false});
             })
             .catch (error => {
                 this.setState({isLoading: true})
@@ -190,6 +193,28 @@ class TodoApp extends React.Component {
                 })
                 console.log(error)
             }); 
+    }
+
+    getUserCreated() { 
+        axios
+        .get("api/v1/users")
+        .then(response => {
+            console.log("Get user created has been called!")
+            this.clearErrors(); 
+            this.setState({isLoading: true})
+            const UserData = response.data
+            console.log(response.data)
+            this.setState({isLoading: false}); 
+        })
+        .catch (error => {
+            this.setState({isLoading: true})
+            this.setState({
+                errorMessage: {
+                    message: "There was an error message while loading getUserCreated..."
+                }
+            })
+            console.log(error)
+        });
     }
 
     createHeatMapItem(data){
