@@ -43,7 +43,7 @@ class Api::V1::CalendarsController < ApplicationController
         end
         
         def calendar_params
-            params.require(:calendar).permit(:date_today, :count)
+            params.require(:calendar).permit(:date_today, :count, :user_id)
         end 
     
 end

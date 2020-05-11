@@ -8,6 +8,7 @@ import TodoForm from "./TodoForm";
 import Spinner from "./Spinner"; 
 import ErrorMessage from "./ErrorMessage"; 
 import CalendarApp from './HeatMap'
+import setAxiosHeaders from './AxiosHeaders'
 
 
 
@@ -23,7 +24,8 @@ class TodoApp extends React.Component {
             goalCount: 0,
             dailyComplete: 0,
             completedGoal: false,
-            loggedToHeatMap: false
+            loggedToHeatMap: false,
+            userData: []
         };
         this.getTodoItems = this.getTodoItems.bind(this); 
         this.createTodoItem = this.createTodoItem.bind(this); 
@@ -41,6 +43,7 @@ class TodoApp extends React.Component {
     componentDidMount(){
         this.getTodoItems(); 
         this.getHeatMap(); 
+        this.getUserCreated(); 
         
     }
 
@@ -84,7 +87,7 @@ class TodoApp extends React.Component {
 
     
 
-    logToHeatMap(){ 
+    logToHeatMap =  _.debounce(()=>{
                 // get date
             if (this.state.loggedToHeatMap){
                 console.log("YOU ALREADY REACHED UR GOAL")
@@ -92,21 +95,36 @@ class TodoApp extends React.Component {
             }
             let dates = new  Date().toISOString().slice(0, 10); 
             let counts = this.state.dailyComplete; 
-            let heatMapItem = new Object(); 
-            heatMapItem.date=dates
-            heatMapItem.count = counts
-            console.log("This is the value of heatMapItem in logtoheatmap: ")
 
-            console.log(heatMapItem)
-            this.createHeatMapItem(heatMapItem);
-                
+            // need to get users create_at --> so make get request to api/v1/users .
+            // with this request / extract create_at
+            // make request to api/v1/calendar and get all objects with
+            // get those items and store in calendar
+            // 
+            console.log("Here we are inside of log to heatMap")
+            setAxiosHeaders(); 
+            const today = new Date(); 
+            axios 
+                .put(`api/v1/calendars/${this.state.userData.id}`, {
+                    calendar: {
+                        count: this.state.dailyComplete,
+                        date_today: today,
+                        user_id: this.state.userData.id
+                       
+                    }
+                })
+                .then (response => { 
+                    this.clearErrors(); 
+                    console.log(response)
+                    console.log("that was the response")
+                })
+                .catch(error => {
+                    this.handlesErrors(error); 
+                });
+            }, 1000); 
+
+           
             
-        // get count
-        // get date  
-        // format 
-        
-    }
-
     updateDailyComplete(item, initial=0){
         let count = initial
         let cur = this.state.dailyComplete
@@ -202,8 +220,9 @@ class TodoApp extends React.Component {
             console.log("Get user created has been called!")
             this.clearErrors(); 
             this.setState({isLoading: true})
-            const UserData = response.data
-            console.log(response.data)
+            const userData = response.data
+            this.setState({userData,})
+            console.log(this.state.userData)
             this.setState({isLoading: false}); 
         })
         .catch (error => {
