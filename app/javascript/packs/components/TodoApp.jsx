@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import axios from 'axios'; 
-
+import _ from "lodash"; 
 import TodoItems from './TodoItems'; 
 import TodoItem from './TodoItem'; 
 import TodoForm from "./TodoForm"; 
@@ -9,7 +9,9 @@ import Spinner from "./Spinner";
 import ErrorMessage from "./ErrorMessage"; 
 import CalendarApp from './HeatMap'
 import setAxiosHeaders from './AxiosHeaders'
-
+import CalendarHeatmap from 'react-calendar-heatmap';
+import ReactTooltip from 'react-tooltip';
+import 'react-calendar-heatmap/dist/styles.css';
 
 
 class TodoApp extends React.Component { 
@@ -25,7 +27,10 @@ class TodoApp extends React.Component {
             dailyComplete: 0,
             completedGoal: false,
             loggedToHeatMap: false,
-            userData: []
+            userCreated: 0,
+            userDataId: 0,
+            strippedHeatMap: [],
+
         };
         this.getTodoItems = this.getTodoItems.bind(this); 
         this.createTodoItem = this.createTodoItem.bind(this); 
@@ -38,12 +43,21 @@ class TodoApp extends React.Component {
         this.createHeatMapItem = this.createHeatMapItem.bind(this)
         this.getEndDate = this.getEndDate.bind(this)
         this.getHeatMap = this.getHeatMap.bind(this); 
+        this.getUserCreated = this.getUserCreated.bind(this)
+        
+        
         
     }
-    componentDidMount(){
-        this.getTodoItems(); 
-        this.getHeatMap(); 
+
+    componentWillMount(){
         this.getUserCreated(); 
+    }
+    componentDidMount(){
+        
+        this.getTodoItems(); 
+        
+        this.getHeatMap(); 
+        
         
     }
 
@@ -52,24 +66,18 @@ class TodoApp extends React.Component {
     }
 
     checkIfDone(){
-        console.log("In checkifDone")
         let dailyCompleteNum = this.state.dailyComplete
         let goalCountNum = this.state.goalCount 
         let val; 
     if (dailyCompleteNum === goalCountNum)
         {
             
-            console.log("value of this.state.dailyComplete is"  + dailyCompleteNum)
-            console.log("Value of goal count is " + goalCountNum)
-            console.log("Setting goal complete to true")
             val = true
         }
         else 
         {
 
-            console.log("value of this.state.dailyComplete is " + dailyCompleteNum)
-            console.log("Value of goal count is " + goalCountNum)
-            console.log("Setting value of goalcomplete to false")
+          
             val = false
         }
         this.setState({goalComplete: val})
@@ -87,12 +95,12 @@ class TodoApp extends React.Component {
 
     
 
-    logToHeatMap =  _.debounce(()=>{
+    logToHeatMap() {
                 // get date
-            if (this.state.loggedToHeatMap){
-                console.log("YOU ALREADY REACHED UR GOAL")
-                return; 
-            }
+           // if (this.state.loggedToHeatMap){
+                //console.log("YOU ALREADY REACHED UR GOAL")
+                //return; 
+           // }
             let dates = new  Date().toISOString().slice(0, 10); 
             let counts = this.state.dailyComplete; 
 
@@ -101,27 +109,26 @@ class TodoApp extends React.Component {
             // make request to api/v1/calendar and get all objects with
             // get those items and store in calendar
             // 
-            console.log("Here we are inside of log to heatMap")
+           
             setAxiosHeaders(); 
             const today = new Date(); 
             axios 
-                .put(`api/v1/calendars/${this.state.userData.id}`, {
+                .put(`api/v1/calendars/${this.state.userDataId}`, {
                     calendar: {
-                        count: this.state.dailyComplete,
                         date_today: today,
-                        user_id: this.state.userData.id
+                        count: this.state.dailyComplete,
+                        id: this.state.userDataId,
                        
                     }
                 })
                 .then (response => { 
                     this.clearErrors(); 
-                    console.log(response)
-                    console.log("that was the response")
+                
                 })
                 .catch(error => {
                     this.handlesErrors(error); 
                 });
-            }, 1000); 
+            }
 
            
             
@@ -144,16 +151,16 @@ class TodoApp extends React.Component {
     initializeDailyGoal(items){ 
         let count = 0
         let i = 0
-        console.log("there are this many items in items: " + items.length)
+       
 
         for (i; i< items.length; i++)
         {
-            console.log("Value of item.complete is: " + items[i].complete)
+          
             if (items[i].complete)
             {
                 
                 count = count + 1
-                console.log("Updating count by 1, count is current: " +  count)
+             
             }
         } 
         this.setState({dailyComplete: count})
@@ -165,15 +172,16 @@ class TodoApp extends React.Component {
         axios 
             .get("/api/v1/todo_items")
             .then(response => {
-                console.log('get to do items has been called')
+                
                 this.clearErrors(); 
                 this.setState({isLoading: true}); 
                 const todoItems = response.data; 
-                console.log(response.data)
+          
                 this.setState({ todoItems, }); 
                 this.setState({goalCount: todoItems.length});
                 this.initializeDailyGoal(this.state.todoItems); 
                 this.setState({isLoading: false}); 
+                
             })
             .catch(error => {
                 this.setState({isLoading: true});
@@ -189,17 +197,33 @@ class TodoApp extends React.Component {
     }
 
     getHeatMap(){ 
+        console.log("WE are inside of get heat map")
         axios
-            .get("api/v1/calendars")
+            .get(`api/v1/calendars`)
             .then(response => {
-                console.log("get heat map has been called")
+               
                 this.clearErrors(); 
                 this.setState({isLoading: true})
-                const heatMap  = response.data; 
+                const heatMap = response.data
+                console.log("THESE ARE THE VALUES OF THE RESPONSE FOR GET HEAT MAP")
                 console.log(response.data)
+                this.setState({heatMap,}, () => {
+                    console.log(this.state.heatMap)
+                })
+                console.log("THAT WAS HEAT MAP ^")
+                console.log(response.data)
+                let strippedHeatMap = []
+                heatMap.forEach(e => {
+                    let element = new Object(); 
+                    element.date = e.date_today; 
+                    element.count = e.count;
+                    strippedHeatMap.push(element) 
+                })
+
+                this.setState({strippedHeatMap,})
                 this.setState({heatMap,})
                 console.log("THE VALUE OF STATE HEATMAP IS: ")
-                console.log(this.state.heatMap)
+                console.log(this.state.todoItems)
                 this.setState({isLoading: false});
             })
             .catch (error => {
@@ -212,7 +236,6 @@ class TodoApp extends React.Component {
                 console.log(error)
             }); 
     }
-
     getUserCreated() { 
         axios
         .get("api/v1/users")
@@ -220,10 +243,20 @@ class TodoApp extends React.Component {
             console.log("Get user created has been called!")
             this.clearErrors(); 
             this.setState({isLoading: true})
-            const userData = response.data
-            this.setState({userData,})
-            console.log(this.state.userData)
-            this.setState({isLoading: false}); 
+            const userDataId = response.data.id
+            console.log("This here is the response")
+            this.setState({userDataId: userDataId});
+
+            
+            
+            const userCreated = response.data.created_at
+            this.setState({userCreated: userCreated}, ()=>{
+                console.log(this.state.userCreated)
+            })
+            console.log("And that was the this.state.userCreated^")
+            //this.getHeatMap(); 
+            this.setState({isLoading: false});
+           
         })
         .catch (error => {
             this.setState({isLoading: true})
@@ -234,6 +267,7 @@ class TodoApp extends React.Component {
             })
             console.log(error)
         });
+     
     }
 
     createHeatMapItem(data){
@@ -274,6 +308,11 @@ class TodoApp extends React.Component {
         
     }
     render() {
+        console.log("The values of heatmap are")
+        console.log(this.state.heatMap)
+        console.log("The values of userCreated are")
+        console.log(this.state.userCreated)
+        const today = new Date(); 
         
         return (
 
@@ -282,7 +321,7 @@ class TodoApp extends React.Component {
                     <ErrorMessage errorMessage={this.state.errorMessage} />
                 )}
 
-                <CalendarApp/>
+            
                 {!this.state.isLoading && (
                     <div>
                     <div>
@@ -315,6 +354,37 @@ class TodoApp extends React.Component {
                 />
                 ))}
             </TodoItems>
+
+                            
+                    <h1>react-calendar-heatmap demos</h1>
+                    <p>Random values with onClick and react-tooltip</p>
+                    
+                    <CalendarHeatmap
+                        startDate={this.state.startDate}
+                        endDate={today}
+                        values={this.state.strippedHeatMap}
+                        classForValue={value => {
+                        if (!value) {
+                            return 'color-empty';
+                        }
+                        return `color-github-${value.count}`;
+                        }}
+                        tooltipDataAttrs={value=> {
+                        return {
+                            'data-tip': `I has count: ${
+                            value.count
+                            }`,
+                        };
+                        }}
+                        showWeekdayLabels={true}
+                        onClick={value => alert(`Clicked on value with count: ${value.count}`)}
+                    />
+                    <ReactTooltip />
+                   
+
+
+
+            
             {this.state.goalCount}
             {this.state.dailyComplete}
             </div>
@@ -324,6 +394,8 @@ class TodoApp extends React.Component {
         ); 
     }
 }
+
+
 
 document.addEventListener('turbolinks:load', () => {
     const app = document.getElementById('todo-app')

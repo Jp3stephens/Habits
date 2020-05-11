@@ -17,10 +17,13 @@ function CalendarApp() {
     <div>
       <h1>react-calendar-heatmap demos</h1>
       <p>Random values with onClick and react-tooltip</p>
+      {console.log("This is value of prpops")}
+      {console.log(this.props)}
+      
       <CalendarHeatmap
-        startDate={shiftDate(today, -150)}
+        startDate={this.props.startDate}
         endDate={today}
-        values={randomValues}
+        values={this.props.values}
         classForValue={value => {
           if (!value) {
             return 'color-empty';
