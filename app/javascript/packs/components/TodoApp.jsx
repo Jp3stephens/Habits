@@ -215,7 +215,7 @@ class TodoApp extends React.Component {
                 let strippedHeatMap = []
                 heatMap.forEach(e => {
                     let element = new Object(); 
-                    element.date = e.date_today; 
+                    element.date = e.created_at; 
                     element.count = e.count;
                     strippedHeatMap.push(element) 
                 })
